@@ -1,0 +1,957 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abuelita Viajera 🇲🇽</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #fff8f1;
+  color: #493b35;
+  font-size: 17px;
+}
+
+header {
+  background: linear-gradient(120deg,#96516f,#d98e83,#e9b78d);
+  color: white;
+  text-align: center;
+  padding: 45px 15px;
+}
+
+header h1 {
+  font-size: clamp(30px,5vw,45px);
+  margin-bottom: 12px;
+}
+
+header p {
+  font-size: 19px;
+  margin: 7px;
+}
+
+.container {
+  max-width: 1250px;
+  margin: auto;
+  padding: 22px;
+}
+
+.section {
+  background: white;
+  padding: 27px;
+  margin-bottom: 25px;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px #00000010;
+}
+
+h2 {
+  color: #a45d76;
+  margin-bottom: 18px;
+  font-size: 27px;
+}
+
+h3 {
+  color: #a45d76;
+}
+
+label {
+  display: block;
+  margin: 17px 0 8px;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+input, select {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #ead6d2;
+  border-radius: 12px;
+  font-size: 17px;
+  background: #fffaf7;
+  color: #493b35;
+}
+
+button {
+  background: #a45d76;
+  color: white;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+button:hover {
+  background: #80445c;
+}
+
+.preferences {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(190px,1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.preference {
+  padding: 16px;
+  background: #fff4ef;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+.preference input {
+  width: auto;
+  margin-right: 8px;
+  accent-color: #a45d76;
+}
+
+.preference:has(input:checked) {
+  border-color: #a45d76;
+  background: #fbe6ed;
+}
+
+#map {
+  height: 470px;
+  border-radius: 16px;
+  z-index: 1;
+}
+
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+  gap: 22px;
+}
+
+.place {
+  background: white;
+  border: 1px solid #f0e4dd;
+  border-radius: 17px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px #00000012;
+  transition: .2s;
+}
+
+.place:hover {
+  transform: translateY(-4px);
+}
+
+.place img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  background: #ead6d2;
+}
+
+.place-content {
+  padding: 19px;
+}
+
+.place h3 {
+  font-size: 21px;
+  margin-bottom: 9px;
+}
+
+.place p {
+  line-height: 1.6;
+  margin: 9px 0;
+}
+
+.tag {
+  display: inline-block;
+  background: #f8e5df;
+  color: #82445c;
+  padding: 7px 11px;
+  border-radius: 20px;
+  margin: 4px 3px;
+  font-size: 14px;
+}
+
+.place button {
+  width: 100%;
+}
+
+#message {
+  font-size: 19px;
+  margin-top: 20px;
+  color: #96516f;
+  font-weight: bold;
+}
+
+.welcome {
+  background: #fff0e9;
+  padding: 22px;
+  border-radius: 15px;
+  margin-bottom: 22px;
+  line-height: 1.7;
+}
+
+footer {
+  text-align: center;
+  background: #96516f;
+  color: white;
+  padding: 35px 15px;
+  line-height: 1.8;
+}
+
+footer h2 {
+  color: white;
+}
+
+.note {
+  color: #78645b;
+  font-size: 14px;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+@media(max-width:600px) {
+  .container {padding: 12px;}
+  .section {padding: 18px;}
+  #map {height: 350px;}
+  header {padding: 30px 12px;}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🌷 Abuelita Viajera 🇲🇽</h1>
+  <p>¡México tiene miles de maravillas esperando por ti!</p>
+  <p>Descubre, disfruta y vive nuevas aventuras. ❤️</p>
+</header>
+
+<div class="container">
+
+  <section class="section">
+    <div class="welcome">
+      <h2>👵 ¡Bienvenida, viajera!</h2>
+      <p>
+        Aquí podrás organizar tus vacaciones, elegir tus destinos
+        favoritos y descubrir lugares maravillosos de México.
+        ¡Nosotros te ayudamos a planear!
+      </p>
+    </div>
+
+    <h2>🧳 Planea tus vacaciones</h2>
+
+    <label>¿Cómo te llamas?</label>
+    <input id="nombre" type="text" placeholder="Escribe tu nombre">
+
+    <label>🇲🇽 ¿Qué estado deseas visitar?</label>
+
+    <select id="estado">
+      <option value="Todas">🌎 ¡Todo México!</option>
+      <option>Aguascalientes</option>
+      <option>Baja California</option>
+      <option>Baja California Sur</option>
+      <option>Campeche</option>
+      <option>Chiapas</option>
+      <option>Chihuahua</option>
+      <option>Ciudad de México</option>
+      <option>Coahuila</option>
+      <option>Colima</option>
+      <option>Durango</option>
+      <option>Estado de México</option>
+      <option>Guanajuato</option>
+      <option>Guerrero</option>
+      <option>Hidalgo</option>
+      <option>Jalisco</option>
+      <option>Michoacán</option>
+      <option>Morelos</option>
+      <option>Nayarit</option>
+      <option>Nuevo León</option>
+      <option>Oaxaca</option>
+      <option>Puebla</option>
+      <option>Querétaro</option>
+      <option>Quintana Roo</option>
+      <option>San Luis Potosí</option>
+      <option>Sinaloa</option>
+      <option>Sonora</option>
+      <option>Tabasco</option>
+      <option>Tamaulipas</option>
+      <option>Tlaxcala</option>
+      <option>Veracruz</option>
+      <option>Yucatán</option>
+      <option>Zacatecas</option>
+    </select>
+
+    <label>💰 ¿Cuál es tu presupuesto diario?</label>
+    <select id="presupuesto">
+      <option value="500">Hasta $500 MXN</option>
+      <option value="1000">Hasta $1,000 MXN</option>
+      <option value="2000">Hasta $2,000 MXN</option>
+      <option value="3500">Hasta $3,500 MXN</option>
+      <option value="10000">Más de $3,500 MXN</option>
+    </select>
+
+    <label>📅 ¿Cuántos días quieres viajar?</label>
+    <select id="dias">
+      <option value="2">2 días</option>
+      <option value="3">3 días</option>
+      <option value="5">5 días</option>
+      <option value="7">7 días</option>
+      <option value="10">10 días</option>
+      <option value="15">15 días</option>
+    </select>
+
+    <label>🌸 ¿Qué te gusta visitar?</label>
+
+    <div class="preferences">
+
+      <label class="preference">
+        <input type="checkbox" value="playa"> 🏖️ Playas
+      </label>
+
+      <label class="preference">
+        <input type="checkbox" value="naturaleza"> 🌳 Naturaleza
+      </label>
+
+      <label class="preference">
+        <input type="checkbox" value="historia"> 🏰 Historia
+      </label>
+
+      <label class="preference">
+        <input type="checkbox" value="cultura"> 🏛️ Museos y cultura
+      </label>
+
+      <label class="preference">
+        <input type="checkbox" value="comida"> 🌮 Gastronomía
+      </label>
+
+      <label class="preference">
+        <input type="checkbox" value="pueblos"> 🏘️ Pueblos mágicos
+      </label>
+
+      <label class="preference">
+        <input type="checkbox" value="religion"> ⛪ Iglesias y templos
+      </label>
+
+      <label class="preference">
+        <input type="checkbox" value="compras"> 🛍️ Mercados y compras
+      </label>
+
+    </div>
+
+    <label>🚶 ¿Qué tipo de paseo prefieres?</label>
+
+    <select id="movilidad">
+      <option value="tranquilo">🌷 Tranquilo y descansado</option>
+      <option value="normal">🚶 Caminatas moderadas</option>
+      <option value="aventura">🌄 Aventuras y caminatas</option>
+      <option value="todos">¡Cualquiera!</option>
+    </select>
+
+    <button onclick="buscarLugares()">
+      ✨ Buscar mis destinos
+    </button>
+
+    <div id="message" aria-live="polite"></div>
+
+  </section>
+
+  <section class="section">
+    <h2>🗺️ Mapa turístico de México</h2>
+    <p>Los marcadores indican los destinos que coinciden con tus gustos.</p>
+    <br>
+    <div id="map"></div>
+  </section>
+
+  <section class="section">
+    <h2>📸 Mis destinos recomendados</h2>
+    <div id="resultados" class="results">
+      <p>¡Selecciona tus gustos para comenzar a viajar!</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>💗 Un consejo para tu viaje</h2>
+    <p>
+      Recuerda llevar ropa cómoda, agua, tus documentos personales
+      y revisar los horarios de los lugares turísticos antes de salir.
+      ¡Disfruta cada momento!
+    </p>
+  </section>
+
+</div>
+
+<footer>
+  <h2>🌷 Abuelita Viajera</h2>
+  <p>Descubriendo la belleza de los 32 estados de México.</p>
+  <p>Hecho con mucho cariño ❤️</p>
+  <p>© 2026 Abuelita Viajera</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// =====================================
+// 1. CREAR MAPA
+// =====================================
+
+const mapa = L.map('map').setView([23.6345,-102.5528],5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap contributors'
+}).addTo(mapa);
+
+
+// =====================================
+// 2. BASE DE DATOS DE DESTINOS
+// UN DESTINO POR CADA ESTADO
+// =====================================
+
+const fotos = [
+  "https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=700",
+  "https://images.unsplash.com/photo-1518638150340-f706e86654de?w=700",
+  "https://images.unsplash.com/photo-1512813195386-6cf811ad3542?w=700",
+  "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=700",
+  "https://images.unsplash.com/photo-1564399579883-451a5d44ec08?w=700",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=700",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=700",
+  "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=700"
+];
+
+const lugares = [
+
+{
+nombre:"Centro Histórico de Aguascalientes",
+estado:"Aguascalientes",
+ciudad:"Aguascalientes",
+tipo:["historia","cultura","religion","compras"],
+descripcion:"Disfruta de plazas, jardines, templos y edificios históricos.",
+lat:21.8818,lon:-102.2960,costo:0,movilidad:"tranquilo",foto:0
+},
+
+{
+nombre:"La Bufadora",
+estado:"Baja California",
+ciudad:"Ensenada",
+tipo:["naturaleza"],
+descripcion:"Contempla este famoso fenómeno natural junto al océano.",
+lat:31.7225,lon:-116.7247,costo:100,movilidad:"normal",foto:5
+},
+
+{
+nombre:"El Arco de Cabo San Lucas",
+estado:"Baja California Sur",
+ciudad:"Cabo San Lucas",
+tipo:["playa","naturaleza"],
+descripcion:"Admira las formaciones rocosas y el hermoso mar de Cortés.",
+lat:22.8765,lon:-109.8933,costo:500,movilidad:"tranquilo",foto:6
+},
+
+{
+nombre:"Zona Arqueológica de Edzná",
+estado:"Campeche",
+ciudad:"Campeche",
+tipo:["historia","cultura","naturaleza"],
+descripcion:"Explora una antigua ciudad maya llena de arquitectura impresionante.",
+lat:19.5933,lon:-90.2317,costo:100,movilidad:"normal",foto:1
+},
+
+{
+nombre:"Cañón del Sumidero",
+estado:"Chiapas",
+ciudad:"Tuxtla Gutiérrez",
+tipo:["naturaleza","aventura"],
+descripcion:"Un impresionante cañón con enormes paredes y paisajes naturales.",
+lat:16.8180,lon:-93.0960,costo:250,movilidad:"normal",foto:7
+},
+
+{
+nombre:"Barrancas del Cobre",
+estado:"Chihuahua",
+ciudad:"Creel",
+tipo:["naturaleza","aventura"],
+descripcion:"Conoce paisajes montañosos y disfruta del famoso recorrido del Chepe.",
+lat:27.5050,lon:-107.7610,costo:300,movilidad:"normal",foto:6
+},
+
+{
+nombre:"Palacio de Bellas Artes",
+estado:"Ciudad de México",
+ciudad:"Ciudad de México",
+tipo:["cultura","historia"],
+descripcion:"Un hermoso edificio con arquitectura extraordinaria y arte mexicano.",
+lat:19.4352,lon:-99.1412,costo:150,movilidad:"tranquilo",foto:0
+},
+
+{
+nombre:"Dunas de Bilbao",
+estado:"Coahuila",
+ciudad:"Viesca",
+tipo:["naturaleza","aventura"],
+descripcion:"Un paisaje de arena sorprendente en medio del desierto.",
+lat:25.3540,lon:-102.8080,costo:100,movilidad:"normal",foto:5
+},
+
+{
+nombre:"Comala",
+estado:"Colima",
+ciudad:"Comala",
+tipo:["pueblos","historia","comida","cultura"],
+descripcion:"Un pueblo de fachadas blancas, tradiciones y gastronomía.",
+lat:19.3230,lon:-103.7590,costo:0,movilidad:"tranquilo",foto:2
+},
+
+{
+nombre:"Parque Natural Mexiquillo",
+estado:"Durango",
+ciudad:"Pueblo Nuevo",
+tipo:["naturaleza","aventura"],
+descripcion:"Bosques, cascadas y paisajes naturales maravillosos.",
+lat:23.7350,lon:-105.6100,costo:100,movilidad:"aventura",foto:7
+},
+
+{
+nombre:"Zona Arqueológica de Teotihuacán",
+estado:"Estado de México",
+ciudad:"San Juan Teotihuacán",
+tipo:["historia","cultura"],
+descripcion:"Conoce las famosas pirámides del Sol y de la Luna.",
+lat:19.6925,lon:-98.8438,costo:200,movilidad:"aventura",foto:1
+},
+
+{
+nombre:"San Miguel de Allende",
+estado:"Guanajuato",
+ciudad:"San Miguel de Allende",
+tipo:["pueblos","historia","cultura","compras","comida","religion"],
+descripcion:"Calles coloridas, galerías, jardines y arquitectura colonial.",
+lat:20.9145,lon:-100.7450,costo:100,movilidad:"tranquilo",foto:2
+},
+
+{
+nombre:"La Quebrada",
+estado:"Guerrero",
+ciudad:"Acapulco",
+tipo:["playa","naturaleza"],
+descripcion:"Disfruta de las vistas al océano y de sus famosos espectáculos.",
+lat:16.8530,lon:-99.9070,costo:100,movilidad:"tranquilo",foto:6
+},
+
+{
+nombre:"Prismas Basálticos",
+estado:"Hidalgo",
+ciudad:"Huasca de Ocampo",
+tipo:["naturaleza","pueblos"],
+descripcion:"Impresionantes columnas de piedra junto a una cascada.",
+lat:20.2030,lon:-98.5550,costo:150,movilidad:"normal",foto:7
+},
+
+{
+nombre:"Hospicio Cabañas",
+estado:"Jalisco",
+ciudad:"Guadalajara",
+tipo:["historia","cultura"],
+descripcion:"Visita un importante edificio histórico y sus obras artísticas.",
+lat:20.6770,lon:-103.3380,costo:100,movilidad:"tranquilo",foto:0
+},
+
+{
+nombre:"Pátzcuaro",
+estado:"Michoacán",
+ciudad:"Pátzcuaro",
+tipo:["pueblos","historia","cultura","comida","compras"],
+descripcion:"Conoce sus plazas, artesanías y tradiciones michoacanas.",
+lat:19.5140,lon:-101.6090,costo:0,movilidad:"tranquilo",foto:2
+},
+
+{
+nombre:"Jardines de México",
+estado:"Morelos",
+ciudad:"Jojutla",
+tipo:["naturaleza","compras"],
+descripcion:"Hermosos jardines temáticos llenos de flores y naturaleza.",
+lat:18.6140,lon:-99.1920,costo:350,movilidad:"tranquilo",foto:3
+},
+
+{
+nombre:"Islas Marietas",
+estado:"Nayarit",
+ciudad:"Bahía de Banderas",
+tipo:["playa","naturaleza","aventura"],
+descripcion:"Un área natural protegida con paisajes marinos espectaculares.",
+lat:20.7030,lon:-105.5650,costo:1000,movilidad:"aventura",foto:6
+},
+
+{
+nombre:"Parque Ecológico Cola de Caballo",
+estado:"Nuevo León",
+ciudad:"Santiago",
+tipo:["naturaleza","aventura"],
+descripcion:"Una hermosa cascada rodeada de montañas y vegetación.",
+lat:25.4250,lon:-100.1460,costo:100,movilidad:"normal",foto:7
+},
+
+{
+nombre:"Centro Histórico de Oaxaca",
+estado:"Oaxaca",
+ciudad:"Oaxaca de Juárez",
+tipo:["historia","cultura","comida","religion","compras"],
+descripcion:"Disfruta de mercados, iglesias, plazas y deliciosa comida tradicional.",
+lat:17.0617,lon:-96.7253,costo:0,movilidad:"tranquilo",foto:2
+},
+
+{
+nombre:"Gran Pirámide de Cholula",
+estado:"Puebla",
+ciudad:"Cholula",
+tipo:["historia","cultura"],
+descripcion:"Descubre una de las construcciones piramidales más importantes de México.",
+lat:19.0577,lon:-98.3030,costo:150,movilidad:"normal",foto:1
+},
+
+{
+nombre:"Peña de Bernal",
+estado:"Querétaro",
+ciudad:"Bernal",
+tipo:["naturaleza","pueblos","historia"],
+descripcion:"Visita uno de los monolitos más grandes del mundo.",
+lat:20.7420,lon:-99.9430,costo:0,movilidad:"normal",foto:5
+},
+
+{
+nombre:"Zona Arqueológica de Tulum",
+estado:"Quintana Roo",
+ciudad:"Tulum",
+tipo:["playa","historia","cultura"],
+descripcion:"Antiguas construcciones mayas frente al mar Caribe.",
+lat:20.2140,lon:-87.4290,costo:200,movilidad:"normal",foto:6
+},
+
+{
+nombre:"Jardín Escultórico Edward James",
+estado:"San Luis Potosí",
+ciudad:"Xilitla",
+tipo:["naturaleza","cultura","aventura"],
+descripcion:"Un jardín surrealista con esculturas rodeadas de vegetación.",
+lat:21.3930,lon:-99.0000,costo:150,movilidad:"normal",foto:3
+},
+
+{
+nombre:"Malecón de Mazatlán",
+estado:"Sinaloa",
+ciudad:"Mazatlán",
+tipo:["playa","comida","compras","naturaleza"],
+descripcion:"Disfruta de vistas al mar, restaurantes y paseos junto a la costa.",
+lat:23.2150,lon:-106.4210,costo:0,movilidad:"tranquilo",foto:6
+},
+
+{
+nombre:"San Carlos",
+estado:"Sonora",
+ciudad:"Guaymas",
+tipo:["playa","naturaleza"],
+descripcion:"Playas y hermosos paisajes del mar de Cortés.",
+lat:27.9600,lon:-111.0500,costo:0,movilidad:"tranquilo",foto:6
+},
+
+{
+nombre:"Parque Museo La Venta",
+estado:"Tabasco",
+ciudad:"Villahermosa",
+tipo:["historia","cultura","naturaleza"],
+descripcion:"Conoce esculturas monumentales de la antigua cultura olmeca.",
+lat:17.9910,lon:-92.9300,costo:100,movilidad:"tranquilo",foto:3
+},
+
+{
+nombre:"Playa Miramar",
+estado:"Tamaulipas",
+ciudad:"Ciudad Madero",
+tipo:["playa","naturaleza"],
+descripcion:"Una playa muy conocida para disfrutar del mar y la brisa.",
+lat:22.2730,lon:-97.7990,costo:0,movilidad:"tranquilo",foto:6
+},
+
+{
+nombre:"Basílica de Ocotlán",
+estado:"Tlaxcala",
+ciudad:"Tlaxcala",
+tipo:["religion","historia","cultura"],
+descripcion:"Un hermoso santuario con arquitectura barroca.",
+lat:19.3080,lon:-98.2290,costo:0,movilidad:"tranquilo",foto:0
+},
+
+{
+nombre:"Zona Arqueológica de El Tajín",
+estado:"Veracruz",
+ciudad:"Papantla",
+tipo:["historia","cultura"],
+descripcion:"Descubre la impresionante Pirámide de los Nichos.",
+lat:20.4480,lon:-97.3770,costo:100,movilidad:"normal",foto:1
+},
+
+{
+nombre:"Chichén Itzá",
+estado:"Yucatán",
+ciudad:"Tinum",
+tipo:["historia","cultura"],
+descripcion:"Visita una de las zonas arqueológicas mayas más famosas del mundo.",
+lat:20.6843,lon:-88.5678,costo:650,movilidad:"normal",foto:1
+},
+
+{
+nombre:"Centro Histórico de Zacatecas",
+estado:"Zacatecas",
+ciudad:"Zacatecas",
+tipo:["historia","cultura","religion","compras"],
+descripcion:"Disfruta de edificios coloniales, plazas y calles llenas de historia.",
+lat:22.7709,lon:-102.5832,costo:0,movilidad:"tranquilo",foto:0
+}
+
+];
+
+
+// =====================================
+// 3. CONTROLAR LOS MARCADORES
+// =====================================
+
+let marcadores = [];
+
+function limpiarMapa(){
+  marcadores.forEach(m => mapa.removeLayer(m));
+  marcadores = [];
+}
+
+
+// =====================================
+// 4. BUSCADOR DE DESTINOS
+// =====================================
+
+function buscarLugares(){
+
+  const nombre = document.getElementById("nombre").value.trim();
+  const estado = document.getElementById("estado").value;
+  const presupuesto = Number(document.getElementById("presupuesto").value);
+  const movilidad = document.getElementById("movilidad").value;
+  const dias = document.getElementById("dias").value;
+
+  const gustos = [...document.querySelectorAll(
+    '.preferences input:checked'
+  )].map(x => x.value);
+
+  const mensaje = document.getElementById("message");
+  const contenedor = document.getElementById("resultados");
+
+  if(gustos.length === 0){
+    mensaje.innerHTML =
+      "🌷 Selecciona al menos un gusto para encontrar tus destinos.";
+    return;
+  }
+
+  const resultados = lugares.filter(lugar => {
+
+    const estadoCorrecto =
+      estado === "Todas" || lugar.estado === estado;
+
+    const presupuestoCorrecto =
+      lugar.costo <= presupuesto;
+
+    const gustoCorrecto =
+      lugar.tipo.some(tipo => gustos.includes(tipo));
+
+    let movilidadCorrecta = true;
+
+    if(movilidad === "tranquilo"){
+      movilidadCorrecta = lugar.movilidad === "tranquilo";
+    }
+
+    if(movilidad === "normal"){
+      movilidadCorrecta = lugar.movilidad !== "aventura";
+    }
+
+    return estadoCorrecto &&
+           presupuestoCorrecto &&
+           gustoCorrecto &&
+           movilidadCorrecta;
+
+  });
+
+  limpiarMapa();
+  contenedor.innerHTML = "";
+
+  if(resultados.length === 0){
+
+    mensaje.innerHTML =
+      "🌸 No encontramos destinos con todos esos filtros. ¡Prueba otro presupuesto o tipo de paseo!";
+
+    contenedor.innerHTML =
+      "<p>¡México tiene muchas maravillas! Cambia tus preferencias para descubrir más.</p>";
+
+    mapa.setView([23.6345,-102.5528],5);
+    return;
+  }
+
+  const saludo = nombre ? `¡Hola, ${nombre}!` : "¡Hola, viajera!";
+
+  mensaje.innerHTML =
+    `🌷 ${saludo} Encontramos ${resultados.length} destinos para ti.`;
+
+  resultados.forEach((lugar,index) => {
+
+    const foto = fotos[lugar.foto];
+
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "place";
+
+    tarjeta.innerHTML = `
+      <img
+        src="${foto}"
+        alt="Fotografía ilustrativa de ${lugar.nombre}"
+        loading="lazy"
+      >
+
+      <div class="place-content">
+
+        <h3>${lugar.nombre}</h3>
+
+        <span class="tag">📍 ${lugar.estado}</span>
+
+        <span class="tag">🏙️ ${lugar.ciudad}</span>
+
+        <p>${lugar.descripcion}</p>
+
+        <p>
+          🎟️ Entrada estimada:
+          <b>${lugar.costo === 0 ? "Gratis" : "$"+lugar.costo+" MXN"}</b>
+        </p>
+
+        <p>
+          🚶 Paseo:
+          ${lugar.movilidad === "tranquilo" ? "Tranquilo" :
+            lugar.movilidad === "normal" ? "Moderado" : "Aventura"}
+        </p>
+
+        <button onclick="verLugar(${index})">
+          🗺️ Ver en el mapa
+        </button>
+
+      </div>
+    `;
+
+    contenedor.appendChild(tarjeta);
+
+    const marcador = L.marker([lugar.lat,lugar.lon])
+      .addTo(mapa)
+      .bindPopup(`
+        <b>${lugar.nombre}</b><br>
+        ${lugar.ciudad}, ${lugar.estado}<br>
+        ${lugar.descripcion}
+      `);
+
+    marcadores.push(marcador);
+
+  });
+
+  // CENTRAR EL MAPA EN LOS RESULTADOS
+
+  const grupo = L.featureGroup(marcadores);
+
+  if(marcadores.length === 1){
+    mapa.setView(marcadores[0].getLatLng(),12);
+  } else {
+    mapa.fitBounds(grupo.getBounds(),{
+      padding:[35,35],
+      maxZoom:8
+    });
+  }
+
+  document.getElementById("resultados").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+}
+
+
+// =====================================
+// 5. MOSTRAR UN DESTINO EN EL MAPA
+// =====================================
+
+function verLugar(index){
+
+  const lugar = lugaresFiltrados[index];
+
+  if(!lugar) return;
+
+  mapa.setView([lugar.lat,lugar.lon],14);
+
+  const marcador = marcadores[index];
+
+  if(marcador){
+    marcador.openPopup();
+  }
+
+}
+
+
+// Guardar los resultados para localizar
+// correctamente cada tarjeta.
+
+let lugaresFiltrados = [];
+
+const buscarOriginal = buscarLugares;
+
+buscarLugares = function(){
+
+  const estado = document.getElementById("estado").value;
+  const presupuesto = Number(document.getElementById("presupuesto").value);
+  const movilidad = document.getElementById("movilidad").value;
+
+  const gustos = [...document.querySelectorAll(
+    '.preferences input:checked'
+  )].map(x => x.value);
+
+  lugaresFiltrados = lugares.filter(lugar => {
+
+    const estadoCorrecto =
+      estado === "Todas" || lugar.estado === estado;
+
+    const presupuestoCorrecto =
+      lugar.costo <= presupuesto;
+
+    const gustoCorrecto =
+      lugar.tipo.some(tipo => gustos.includes(tipo));
+
+    let movilidadCorrecta = true;
+
+    if(movilidad === "tranquilo"){
+      movilidadCorrecta = lugar.movilidad === "tranquilo";
+    }
+
+    if(movilidad === "normal"){
+      movilidadCorrecta = lugar.movilidad !== "aventura";
+    }
+
+    return estadoCorrecto &&
+           presupuestoCorrecto &&
+           gustoCorrecto &&
+           movilidadCorrecta;
+
+  });
+
+  buscarOriginal();
+
+};
+
+</script>
+
+</body>
+</html>
